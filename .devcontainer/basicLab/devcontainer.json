@@ -11,18 +11,12 @@
   "secrets": {
     "ARTOKEN": {
       "description": "Optional: Arista token if you later want to auto-fetch EOS images."
-    },
-    "GHCR_USER": {
-      "description": "GitHub username for GHCR (e.g., toddhsimmons)"
-    },
-    "GHCR_TOKEN": {
-      "description": "PAT with read:packages (and write:packages if you ever push)"
     }
   },
   "hostRequirements": {
-    "cpus": 16,
-    "memory": "64gb",
-    "storage": "128gb"
+    "cpus": 2,
+    "memory": "8gb",
+    "storage": "32gb"
   },
   "containerUser": "avd",
   "remoteUser": "avd",
@@ -36,7 +30,7 @@
     "--privileged",
     "--network=host"
   ],
-  "postCreateCommand": "bash .devcontainer/part3/postCreateCommand.sh",
+  "postCreateCommand": "bash .devcontainer/basicLab/postCreateCommand.sh",
   "postStartCommand": "sudo containerlab version upgrade || true",
   "customizations": {
     "vscode": {
