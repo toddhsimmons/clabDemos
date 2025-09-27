@@ -1,2 +1,9 @@
+# This is some Toddomation
+
+# Ignore cEOS image files
 *.tar
+*.bin
+*.vmdk
+*.qcow2
+*.img
 *.xz
