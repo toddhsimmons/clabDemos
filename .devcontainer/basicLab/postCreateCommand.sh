@@ -11,9 +11,6 @@ TOPO_FILE="${LAB_DIR}/topo.clab.yaml"
 OWNER_DEFAULT="toddhsimmons"
 OWNER="${GHCR_USER:-$OWNER_DEFAULT}"
 
-REMOTE_TAG="$(echo "${CEOS_VER}" | tr '[:upper:]' '[:lower:]')"
-REMOTE_IMAGE="ghcr.io/${OWNER}/ceos:${REMOTE_TAG}"
-
 echo "▶ Using GHCR owner: ${OWNER}"
 
 echo "▶ postCreate: repo root=${REPO_ROOT}"
@@ -120,9 +117,10 @@ if [ ! -e "${LAB_DIR}/basicLab" ]; then
   echo "ℹ️ Added safety symlink: ${LAB_DIR}/basicLab -> ${LAB_DIR}"
 fi
 
+
 # --- cEOS image handling: public pull only ---
-CEOS_VER="${CEOS_LAB_VERSION:-${CEOS_VERSION:-4.30.1F}}"
-CEOS_TAG_LOCAL="ceos:${CEOS_VER}"
+REMOTE_TAG="$(echo "${CEOS_VER}" | tr '[:upper:]' '[:lower:]')"
+REMOTE_IMAGE="ghcr.io/${OWNER}/ceos:${REMOTE_TAG}"
 
 REMOTE_TAG="$(echo "${CEOS_VER}" | tr '[:upper:]' '[:lower:]')"   # 4.30.1F -> 4.30.1f
 REMOTE_IMAGE="ghcr.io/toddhsimmons/ceos:${REMOTE_TAG}"
