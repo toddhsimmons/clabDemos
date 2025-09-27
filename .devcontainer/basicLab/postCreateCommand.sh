@@ -112,10 +112,10 @@ for n in DC1-Spine1 DC1-Spine2 DC1-Leaf1 DC1-Leaf2 DC1-Leaf3 DC1-Leaf4; do
 done
 
 # SAFETY symlink for nested runs
-if [ ! -e "${LAB_DIR}/basicLab" ]; then
-  ln -s "${LAB_DIR}" "${LAB_DIR}/basicLab"
-  echo "ℹ️ Added safety symlink: ${LAB_DIR}/basicLab -> ${LAB_DIR}"
-fi
+# if [ ! -e "${LAB_DIR}/basicLab" ]; then
+#   ln -s "${LAB_DIR}" "${LAB_DIR}/basicLab"
+#   echo "ℹ️ Added safety symlink: ${LAB_DIR}/basicLab -> ${LAB_DIR}"
+# fi
 
 
 # --- cEOS image handling: prefer local ".tar" sideload; optional remote pull ---
