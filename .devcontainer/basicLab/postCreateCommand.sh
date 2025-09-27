@@ -7,6 +7,15 @@ LAB_DIR="${REPO_ROOT}/basicLab"              # your lab content lives here
 FLASH_DIR="${LAB_DIR}/flash"               # bind root used in topo
 TOPO_FILE="${LAB_DIR}/topo.clab.yaml"
 
+# Default to your public namespace; allow GHCR_USER to override
+OWNER_DEFAULT="toddhsimmons"
+OWNER="${GHCR_USER:-$OWNER_DEFAULT}"
+
+REMOTE_TAG="$(echo "${CEOS_VER}" | tr '[:upper:]' '[:lower:]')"
+REMOTE_IMAGE="ghcr.io/${OWNER}/ceos:${REMOTE_TAG}"
+
+echo "▶ Using GHCR owner: ${OWNER}"
+
 echo "▶ postCreate: repo root=${REPO_ROOT}"
 echo "▶ postCreate: lab dir  =${LAB_DIR}"
 echo "▶ postCreate: topo file=${TOPO_FILE}"
