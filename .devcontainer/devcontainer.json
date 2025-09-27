@@ -1,0 +1,57 @@
+{
+  "build": {
+    "dockerfile": "Dockerfile.bootstrap"
+  },
+  "containerEnv": {
+    "CONTAINERWSF": "${containerWorkspaceFolder}",
+    "CEOS_LAB_VERSION": "4.30.1F",
+    "CLAB_AUTO_UPGRADE": "true",
+    "CLAB_AUTO_DEPLOY": "true"
+  },
+  "secrets": {
+    "ARTOKEN": {
+      "description": "Optional: Arista token if you later want to auto-fetch EOS images."
+    },
+    "GHCR_USER": {
+      "description": "GitHub username for GHCR (e.g., toddhsimmons)"
+    },
+    "GHCR_TOKEN": {
+      "description": "PAT with read:packages (and write:packages if you ever push)"
+    }
+  },
+  "hostRequirements": {
+    "cpus": 16,
+    "memory": "64gb",
+    "storage": "128gb"
+  },
+  "containerUser": "avd",
+  "remoteUser": "avd",
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {
+      "version": "latest",
+      "moby": true
+    }
+  },
+  "runArgs": [
+    "--privileged",
+    "--network=host"
+  ],
+  "postCreateCommand": "bash .devcontainer/part3/postCreateCommand.sh",
+  "postStartCommand": "sudo containerlab version upgrade || true",
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "containerlab.showWelcomePage": false,
+        "workbench.startupEditor": "readme",
+        "workbench.editorAssociations": {
+          "*.md": "vscode.markdown.preview.editor"
+        }
+      },
+      "extensions": [
+        "srl-labs.vscode-containerlab",
+        "redhat.ansible",
+        "ms-python.python"
+      ]
+    }
+  }
+}
