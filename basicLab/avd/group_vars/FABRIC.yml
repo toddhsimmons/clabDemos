@@ -1,0 +1,94 @@
+---
+# Enjoy this Toddomation
+
+# Common AVD group variables
+fabric_name: FABRIC
+mgmt_ip_addr: "{{ hostvars[inventory_hostname].mgmt_ip | default('') | regex_replace('/.*','') }}"
+# Ansible connectivity definitions
+ansible_user: ansible
+ansible_password: ansible
+ansible_network_os: arista.eos.eos
+# Configure privilege escalation
+ansible_become: true
+ansible_become_method: enable
+# HTTPAPI configuration
+ansible_connection: ansible.netcommon.httpapi
+ansible_httpapi_port: 80
+ansible_httpapi_use_ssl: false
+ansible_httpapi_validate_certs: false
+# ansible_python_interpreter: $(which python3)
+# avd_data_validation_mode: warning
+
+# ip_http_client_source_interfaces:
+#   - name: Management0
+#     vrf: MGMT
+
+
+# If mgmt_gateway is not already set in site files, set it here:
+mgmt_gateway: 192.168.0.1
+mgmt_interface: Management0
+mgmt_interface_vrf: MGMT
+
+# Enable eAPI
+# management_api_http:
+#   enable_http: true
+#   enable_https: false
+  # https_ssl_profile: AVD_TLS
+  # default_services: false
+  # enable_unix: false
+  # enable_vrfs:
+  #   - name: MGMT
+
+
+aaa_settings:
+  local_users:
+    - name: ansible
+      privilege: 15
+      role: network-admin
+      sha512_password: $6$PpZgW9C8io86jEQO$xALxCHif1Rf6biZBuKs6FErPZZ4Y7WmHEJvi0BYRKBazM6AIaqvypplZcKgcqqCiaAGF9zi8NtP7YBVF62Dwq0
+    - name: admin 
+      privilege: 15
+      role: network-admin
+      sha512_password: $6$vQ.vmD34lqVZrvIV$DGSRZa/DmXXsPKw7Om2vUOxQoMhV741T7Dj.IYCN5ksHZAe7T2JDGw1ERkg5h9qgqbuFpnlc6njEn0Gv5SIAj/
+
+
+# Prefer mgmt_ip if defined in DC files; else use ansible_host from inventory
+# mgmt_ip_addr: >-
+#   {{
+#     (hostvars[inventory_hostname].mgmt_ip
+#       | default(hostvars[inventory_hostname].ansible_host, true))
+#     | regex_replace('/.*','')
+#   }}
+
+
+# Event Monitor in EOS
+event_monitor:
+  enabled: true
+
+# Source interface and VRF for DNS
+# ip_domain_lookup:
+#   source_interfaces:
+#     - name: Management0
+#       vrf: MGMT
+
+# Global ARP/MAC Aging Timer
+mac_address_table:
+  aging_time: 1800
+
+
+arp:
+  aging:
+    timeout_default: 1500
+
+
+# p2p_uplinks_mtu: 9214
+p2p_uplinks_mtu: 1500
+
+# eos_cli: |
+  
+#   management api http-commands
+#     protocol http
+#     no shutdown
+    
+#     vrf MGMT
+#         no shutdown

@@ -1,0 +1,92 @@
+name: basicLab
+mgmt:
+  network: clab-mgmt
+  ipv4-subnet: 192.168.0.0/24
+
+topology:
+  kinds:
+    ceos:
+      image: ceos:4.30.1F
+      env:
+        CLAB_MGMT_VRF: MGMT
+
+  nodes:
+    ############
+    #   DC1    #
+    ############
+    DC1-Spine1:
+      kind: ceos
+      group: spine
+      mgmt-ipv4: 192.168.0.11
+      startup-delay: 0
+      startup-config: init-configs/DC1/Spine1.cfg
+      ports:
+        - "2011:22"
+        
+    DC1-Spine2:
+      kind: ceos
+      group: spine
+      mgmt-ipv4: 192.168.0.12
+      startup-delay: 10
+      startup-config: init-configs/DC1/Spine2.cfg
+      ports:
+        - "2012:22"
+
+    DC1-Leaf1:
+      kind: ceos
+      group: leaf
+      mgmt-ipv4: 192.168.0.21
+      startup-delay: 40
+      startup-config: init-configs/DC1/Leaf1.cfg
+      ports:
+        - "2021:22"
+
+    DC1-Leaf2:
+      kind: ceos
+      group: leaf
+      mgmt-ipv4: 192.168.0.22
+      startup-delay: 55
+      startup-config: init-configs/DC1/Leaf2.cfg
+      ports:
+        - "2022:22"
+
+    DC1-Leaf3:
+      kind: ceos
+      group: leaf
+      mgmt-ipv4: 192.168.0.23
+      startup-delay: 70
+      startup-config: init-configs/DC1/Leaf3.cfg
+      ports:
+        - "2023:22"
+
+    DC1-Leaf4:
+      kind: ceos
+      group: leaf
+      mgmt-ipv4: 192.168.0.24
+      startup-delay: 85
+      startup-config: init-configs/DC1/Leaf4.cfg
+      ports:
+        - "2024:22"
+
+  links:
+    # ===== DC1 fabric  =====
+    # Leaf1 <-> Leaf2 peer links
+    - endpoints: ["DC1-Leaf1:eth1","DC1-Leaf2:eth1"]
+    - endpoints: ["DC1-Leaf1:eth2","DC1-Leaf2:eth2"]
+
+    # Leaf3 <-> Leaf4 peer links
+    - endpoints: ["DC1-Leaf3:eth1","DC1-Leaf4:eth1"]
+    - endpoints: ["DC1-Leaf3:eth2","DC1-Leaf4:eth2"]
+
+    # Leaf -> Spine (per mapping)
+    - endpoints: ["DC1-Leaf1:eth3","DC1-Spine1:eth2"]
+    - endpoints: ["DC1-Leaf1:eth4","DC1-Spine2:eth2"]
+
+    - endpoints: ["DC1-Leaf2:eth3","DC1-Spine1:eth3"]
+    - endpoints: ["DC1-Leaf2:eth4","DC1-Spine2:eth3"]
+
+    - endpoints: ["DC1-Leaf3:eth3","DC1-Spine1:eth4"]
+    - endpoints: ["DC1-Leaf3:eth4","DC1-Spine2:eth4"]
+
+    - endpoints: ["DC1-Leaf4:eth3","DC1-Spine1:eth5"]
+    - endpoints: ["DC1-Leaf4:eth4","DC1-Spine2:eth5"]
