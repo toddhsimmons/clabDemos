@@ -19,7 +19,7 @@ echo "▶ topo file   : ${TOPO_FILE}"
 echo "▶ expected tag: ${CEOS_TAG_LOCAL}"
 
 # ====== Tiny helpers ======
-need() { command -v "$1" >/dev/null 2%) || { echo "❌ Missing '$1'"; exit 1; }; }
+need() { command -v "$1" >/dev/null 2>&1 || { echo "❌ Missing '$1'"; exit 1; }; }
 
 pull_with_retry() {
   local img="$1" tries=0 max=3
@@ -33,8 +33,10 @@ pull_with_retry() {
 wait_for_docker() {
   echo "▶ Waiting for Docker daemon..."
   local tries=0 max=180
+  # keep daemon tmp sane while waiting
   sudo mkdir -p /var/lib/docker/tmp || true
   sudo chmod 1777 /var/lib/docker/tmp || true
+  # (safe devcontainer hack) ensure tmp points at /tmp
   sudo ln -sfn /tmp /var/lib/docker/tmp || true
   until docker info >/dev/null 2>&1; do
     tries=$((tries+1))
@@ -48,6 +50,7 @@ wait_for_docker() {
 # otherwise uses docker import for a rootfs tar.
 load_ceos_from_local() {
   mkdir -p "${IMAGES_DIR}"
+  # Preferred names first, then any cEOS*.tar*
   local candidates=(
     "${IMAGES_DIR}/ceos-${CEOS_VER}.tar"
     "${IMAGES_DIR}/ceos.tar"
@@ -59,6 +62,7 @@ load_ceos_from_local() {
     [[ -f "$t" ]] || continue
     echo "📦 Found local image: $t"
 
+    # Decompress to temp tar
     local tmp_tar
     tmp_tar="$(mktemp /tmp/ceos-XXXXXX.tar)"
     case "$t" in
@@ -68,6 +72,7 @@ load_ceos_from_local() {
       *)         echo "❌ Unknown archive format: $t"; rm -f "$tmp_tar"; continue ;;
     esac
 
+    # Detect tar type: docker image tar (has manifest.json) vs rootfs tar (no manifest.json)
     if tar -tf "$tmp_tar" | grep -q '^manifest\.json$'; then
       echo "▶ Detected docker image tar → docker load"
       if sudo DOCKER_TMPDIR=/tmp docker load -i "$tmp_tar"; then
