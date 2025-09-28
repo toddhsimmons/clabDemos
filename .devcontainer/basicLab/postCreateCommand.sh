@@ -19,7 +19,7 @@ echo "▶ topo file   : ${TOPO_FILE}"
 echo "▶ expected tag: ${CEOS_TAG_LOCAL}"
 
 # ====== Tiny helpers ======
-need() { command -v "$1" >/dev/null 2>&1 || { echo "❌ Missing '$1'"; exit 1; }; }
+need() { command -v "$1" >/dev/null 2%) || { echo "❌ Missing '$1'"; exit 1; }; }
 
 pull_with_retry() {
   local img="$1" tries=0 max=3
@@ -33,10 +33,8 @@ pull_with_retry() {
 wait_for_docker() {
   echo "▶ Waiting for Docker daemon..."
   local tries=0 max=180
-  # keep daemon tmp sane while waiting
   sudo mkdir -p /var/lib/docker/tmp || true
   sudo chmod 1777 /var/lib/docker/tmp || true
-  # (safe devcontainer hack) ensure tmp points at /tmp
   sudo ln -sfn /tmp /var/lib/docker/tmp || true
   until docker info >/dev/null 2>&1; do
     tries=$((tries+1))
@@ -46,10 +44,10 @@ wait_for_docker() {
   echo "✅ Docker is ready"
 }
 
-# Load cEOS from a local tar(.xz|.gz|.tar). Returns 0 on success.
+# Load cEOS from a local tar(.xz|.gz|.tar). Uses docker load if a docker-archive (manifest.json present),
+# otherwise uses docker import for a rootfs tar.
 load_ceos_from_local() {
   mkdir -p "${IMAGES_DIR}"
-  # Preferred names first, then any cEOS*.tar*
   local candidates=(
     "${IMAGES_DIR}/ceos-${CEOS_VER}.tar"
     "${IMAGES_DIR}/ceos.tar"
@@ -61,7 +59,6 @@ load_ceos_from_local() {
     [[ -f "$t" ]] || continue
     echo "📦 Found local image: $t"
 
-    # Decompress to temp tar; load with root and DOCKER_TMPDIR=/tmp (fixes .deltas/json)
     local tmp_tar
     tmp_tar="$(mktemp /tmp/ceos-XXXXXX.tar)"
     case "$t" in
@@ -71,21 +68,26 @@ load_ceos_from_local() {
       *)         echo "❌ Unknown archive format: $t"; rm -f "$tmp_tar"; continue ;;
     esac
 
-    echo "▶ docker load -i $tmp_tar (root, tmp=/tmp)"
-    if sudo DOCKER_TMPDIR=/tmp docker load -i "$tmp_tar"; then
-      rm -f "$tmp_tar"
-      return 0
-    fi
-
-    echo "⚠️ docker load failed; trying containerd import..."
-    if command -v ctr >/dev/null 2>&1; then
-      if sudo ctr -n moby images import "$tmp_tar"; then
+    if tar -tf "$tmp_tar" | grep -q '^manifest\.json$'; then
+      echo "▶ Detected docker image tar → docker load"
+      if sudo DOCKER_TMPDIR=/tmp docker load -i "$tmp_tar"; then
         rm -f "$tmp_tar"
         return 0
+      else
+        echo "❌ docker load failed for $t"
+      fi
+    else
+      echo "▶ Detected rootfs tar → docker import to ${CEOS_TAG_LOCAL}"
+      if sudo docker import "$tmp_tar" "${CEOS_TAG_LOCAL}"; then
+        rm -f "$tmp_tar"
+        return 0
+      else
+        echo "❌ docker import failed for $t"
       fi
     fi
+
     rm -f "$tmp_tar"
-    echo "❌ Import failed for $t (will try next candidate if any)"
+    echo "❌ Import/load failed for $t (will try next candidate if any)"
   done
 
   return 1
@@ -116,9 +118,6 @@ echo "▶ Ensuring flash/ directory structure"
 mkdir -p "${FLASH_DIR}"
 create_flash_dir() { mkdir -p "${FLASH_DIR}/$1"; }
 for n in DC1-Spine1 DC1-Spine2 DC1-Leaf1 DC1-Leaf2 DC1-Leaf3 DC1-Leaf4; do create_flash_dir "DC1/${n}"; done
-# for n in GW21 Spine1-DC2 Spine2-DC2 Spine3-DC2 Leaf1-DC2 Leaf2-DC2 Leaf3-DC2 Leaf4-DC2 Host1-DC2 Host2-DC2; do create_flash_dir "DC2/${n}"; done
-# for n in GW31 Spine1-DC3 Spine2-DC3 Leaf1-DC3 Leaf2-DC3 Host1-DC3 Host2-DC3; do create_flash_dir "DC3/${n}"; done
-# for n in RR P1 P2 P3 P4; do create_flash_dir "MPLS/${n}"; done
 
 # ====== Docker ready (dind) ======
 need docker
@@ -139,7 +138,7 @@ else
     echo "   bash .devcontainer/basicLab/postCreateCommand.sh"
   fi
 
-  # Retag to expected local name if needed
+  # Retag to expected local name if docker load produced a different tag
   if docker image inspect "${CEOS_TAG_LOCAL}" >/dev/null 2>&1; then
     :
   else
