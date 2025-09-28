@@ -62,21 +62,29 @@ if docker image inspect "${image}" >/dev/null 2>&1; then
 fi
 
 # snapshot images before load to help retag if needed
-before_ids="$(docker images -q --no-trunc | sort | uniq)"
+before_ids="$(docker images -q --no-trunc | sort -u)"
 
-echo "📦 Loading ${ceos_file} ..."
+# --- Decompress to a temp tar, then docker load (avoids .deltas/json issues) ---
+tmp_tar="$(mktemp /tmp/ceos-XXXXXX.tar)"
+cleanup() { rm -f "$tmp_tar"; }
+trap cleanup EXIT
+
+echo "📦 Preparing image tar at: $tmp_tar"
 case "${ceos_file}" in
-  *.tar.xz)  xz -dc "${ceos_file}" | docker load ;;
-  *.tar.gz)  gzip -dc "${ceos_file}" | docker load ;;
-  *.tar)     docker load -i "${ceos_file}" ;;
+  *.tar.xz)  xz -dc "${ceos_file}" > "$tmp_tar" ;;
+  *.tar.gz)  gzip -dc "${ceos_file}" > "$tmp_tar" ;;
+  *.tar)     cp -f "${ceos_file}" "$tmp_tar" ;;
 esac
+
+echo "▶ docker load -i $tmp_tar"
+docker load -i "$tmp_tar"
 
 # if desired tag exists now, we're done
 if docker image inspect "${image}" >/dev/null 2>&1; then
   echo "✅ Loaded as ${image}"
 else
   # find newly introduced image ID and retag
-  after_ids="$(docker images -q --no-trunc | sort | uniq)"
+  after_ids="$(docker images -q --no-trunc | sort -u)"
   new_id="$(comm -13 <(echo "$before_ids") <(echo "$after_ids") | tail -n1 || true)"
   if [[ -n "${new_id}" ]]; then
     echo "▶ Retagging ${new_id} → ${image}"
