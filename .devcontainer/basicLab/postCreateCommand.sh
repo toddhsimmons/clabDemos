@@ -115,10 +115,10 @@ containerlab version || true
 echo "▶ Ensuring flash/ directory structure"
 mkdir -p "${FLASH_DIR}"
 create_flash_dir() { mkdir -p "${FLASH_DIR}/$1"; }
-for n in GW11 Spine1-DC1 Spine2-DC1 Spine3-DC1 Leaf1-DC1 Leaf2-DC1 Leaf3-DC1 Leaf4-DC1 Host1-DC1 Host2-DC1; do create_flash_dir "DC1/${n}"; done
-for n in GW21 Spine1-DC2 Spine2-DC2 Spine3-DC2 Leaf1-DC2 Leaf2-DC2 Leaf3-DC2 Leaf4-DC2 Host1-DC2 Host2-DC2; do create_flash_dir "DC2/${n}"; done
-for n in GW31 Spine1-DC3 Spine2-DC3 Leaf1-DC3 Leaf2-DC3 Host1-DC3 Host2-DC3; do create_flash_dir "DC3/${n}"; done
-for n in RR P1 P2 P3 P4; do create_flash_dir "MPLS/${n}"; done
+for n in DC1-Spine1 DC1-Spine2 DC1-Leaf1 DC1-Leaf2 DC1-Leaf3 DC1-Leaf4; do create_flash_dir "DC1/${n}"; done
+# for n in GW21 Spine1-DC2 Spine2-DC2 Spine3-DC2 Leaf1-DC2 Leaf2-DC2 Leaf3-DC2 Leaf4-DC2 Host1-DC2 Host2-DC2; do create_flash_dir "DC2/${n}"; done
+# for n in GW31 Spine1-DC3 Spine2-DC3 Leaf1-DC3 Leaf2-DC3 Host1-DC3 Host2-DC3; do create_flash_dir "DC3/${n}"; done
+# for n in RR P1 P2 P3 P4; do create_flash_dir "MPLS/${n}"; done
 
 # ====== Docker ready (dind) ======
 need docker
