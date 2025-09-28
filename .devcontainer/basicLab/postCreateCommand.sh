@@ -118,103 +118,99 @@ done
 # fi
 
 
-# --- cEOS image handling: prefer local ".tar" sideload; optional remote pull ---
+# --- cEOS acquisition: prefer local tar; optional remote pull ---
 CEOS_VER="${CEOS_LAB_VERSION:-${CEOS_VERSION:-4.30.1F}}"
 CEOS_TAG_LOCAL="ceos:${CEOS_VER}"
-REMOTE_TAG="$(echo "${CEOS_VER}" | tr '[:upper:]' '[:lower:]')"   # 4.30.1F -> 4.30.1f
-
-# Where users can drop their own image tar (document this in your README/notice)
+REMOTE_TAG="$(echo "${CEOS_VER}" | tr '[:upper:]' '[:lower:]')"
 IMAGES_DIR="${LAB_DIR}/images"
 mkdir -p "${IMAGES_DIR}"
-
-# Optional remote (only if user opts in)
-# Example: CEOS_REMOTE="ghcr.io/yourorg/ceos:${REMOTE_TAG}"  (requires auth if private)
-CEOS_REMOTE="${CEOS_REMOTE:-}"
+CEOS_REMOTE="${CEOS_REMOTE:-}"   # e.g. ghcr.io/you/ceos:${REMOTE_TAG}
 
 echo "▶ Expect local tag: ${CEOS_TAG_LOCAL}"
-[[ -n "${CEOS_REMOTE}" ]] && echo "▶ Remote (opt-in): ${CEOS_REMOTE}"
-
-pull_with_retry() {
-  local img="$1" tries=0 max=3
-  until docker pull "${img}"; do
-    tries=$((tries+1))
-    if (( tries >= max )); then return 1; fi
-    echo "…retrying docker pull (${tries}/${max}) in 3s"
-    sleep 3
-  done
-  return 0
-}
 
 load_first_tar() {
-  # Prefer versioned filename, then ceos.tar, then any .tar in the folder
-  local candidates=(
+  # candidates in preference order, then any other cEOS*.tar*
+  local c=(
     "${IMAGES_DIR}/ceos-${CEOS_VER}.tar"
     "${IMAGES_DIR}/ceos.tar"
   )
-  # Add any other tarballs present as fallbacks
-  mapfile -t others < <(ls -1 "${IMAGES_DIR}"/*.tar 2>/dev/null | grep -v -E "ceos(-${CEOS_VER})?\.tar$" || true)
-  candidates+=("${others[@]}")
+  mapfile -t others < <(ls -1t "${IMAGES_DIR}"/cEOS*.tar* 2>/dev/null || true)
+  c+=("${others[@]}")
 
-  for t in "${candidates[@]}"; do
+  for t in "${c[@]}"; do
     [[ -f "$t" ]] || continue
-    echo "▶ Loading cEOS from tar: $t"
-    if docker load -i "$t"; then
+    echo "📦 Loading cEOS from tar: $t"
+
+    # prepare a temp .tar and load via a stable path
+    tmp_tar="$(mktemp /tmp/ceos-XXXXXX.tar)"
+    case "$t" in
+      *.tar.xz)  xz -dc  "$t" > "$tmp_tar" ;;
+      *.tar.gz)  gzip -dc "$t" > "$tmp_tar" ;;
+      *.tar)     cp -f   "$t"  "$tmp_tar" ;;
+      *)         echo "❌ Unknown archive format: $t"; rm -f "$tmp_tar"; return 1 ;;
+    esac
+
+    # docker sometimes chokes on /var/lib/docker/tmp → force /tmp
+    if DOCKER_TMPDIR=/tmp docker load -i "$tmp_tar"; then
+      rm -f "$tmp_tar"
       return 0
     else
-      echo "⚠️ Failed to load $t, trying next candidate…"
+      echo "⚠️ docker load failed; trying containerd import..."
+      if command -v ctr >/dev/null 2>&1; then
+        if sudo ctr -n moby images import "$tmp_tar"; then
+          rm -f "$tmp_tar"
+          return 0
+        fi
+      fi
+      rm -f "$tmp_tar"
+      echo "❌ Failed to load $t"
     fi
   done
   return 1
 }
 
+pull_with_retry() {
+  local img="$1" tries=0 max=3
+  until docker pull "$img"; do
+    tries=$((tries+1))
+    (( tries >= max )) && return 1
+    echo "…retrying docker pull ($tries/$max) in 3s"; sleep 3
+  done
+}
+
+# 1) Try local sideload first (even if the tag isn't present yet)
 if docker image inspect "${CEOS_TAG_LOCAL}" >/dev/null 2>&1; then
-  echo "✅ cEOS already present: ${CEOS_TAG_LOCAL} (skipping acquisition)"
+  echo "✅ cEOS already present: ${CEOS_TAG_LOCAL}"
 else
-  # 1) Try local sideload first
   if load_first_tar; then
-    :
-  # 2) If user opted into remote, try pulling (may require login)
+    echo "▶ Loaded cEOS from local tar(s)"
   elif [[ -n "${CEOS_REMOTE}" ]]; then
-    echo "▶ Pulling ${CEOS_REMOTE} (user-opted remote)…"
-    # Optional login if user provided creds (kept generic; adjust to your registry)
-    if [[ -n "${DOCKER_LOGIN_SERVER:-}" && -n "${DOCKER_LOGIN_USER:-}" && -n "${DOCKER_LOGIN_PASSWORD:-}" ]]; then
-      echo "▶ Logging into ${DOCKER_LOGIN_SERVER} as ${DOCKER_LOGIN_USER}"
-      printf '%s' "${DOCKER_LOGIN_PASSWORD}" | docker login "${DOCKER_LOGIN_SERVER}" -u "${DOCKER_LOGIN_USER}" --password-stdin
-    fi
-    if ! pull_with_retry "${CEOS_REMOTE}"; then
-      echo "❌ Remote pull failed. Provide a local tar in ${IMAGES_DIR} or valid creds."
-      exit 0  # don’t hard-fail whole postCreate; user can fix and rerun
-    fi
+    echo "▶ Pulling remote image (opt-in): ${CEOS_REMOTE}"
+    pull_with_retry "${CEOS_REMOTE}" || echo "❌ Remote pull failed"
   else
-    echo "ℹ️ No local cEOS tar found in ${IMAGES_DIR} and no CEOS_REMOTE provided."
-    echo "   Place your cEOS tarball at:"
-    echo "     - ${IMAGES_DIR}/ceos-${CEOS_VER}.tar  (preferred)"
-    echo "     - ${IMAGES_DIR}/ceos.tar"
-    echo "   …then re-run this script. See repo notice for how to obtain the image."
-    exit 0
+    echo "ℹ️ No local tar found in ${IMAGES_DIR} and no CEOS_REMOTE set."
+    echo "   Drop your cEOS tar in ${IMAGES_DIR} (e.g., cEOS64-lab-${CEOS_VER}.tar.xz) and re-run."
   fi
 
-  # After either load or pull, retag to topo name if needed
+  # 2) Ensure the expected local tag exists
   if docker image inspect "${CEOS_TAG_LOCAL}" >/dev/null 2>&1; then
-    echo "✅ Found ${CEOS_TAG_LOCAL} already"
+    :
   else
-    # Try to locate a source image to retag (common names after load/pull)
-    SRC_IMG="$(docker images --format '{{.Repository}}:{{.Tag}}' | \
-               grep -Ei "ceos(:|@).*${REMOTE_TAG}|ceos.*${CEOS_VER}|ceos" | head -n1 || true)"
-    if [[ -n "${CEOS_REMOTE}" && -z "${SRC_IMG}" ]]; then SRC_IMG="${CEOS_REMOTE}"; fi
-
-    if [[ -n "${SRC_IMG}" ]]; then
+    # find a ceos image we just loaded/pulled and retag
+    SRC_IMG="$(docker images --format '{{.Repository}}:{{.Tag}}' | grep -Ei '^ceos[:@]|/ceos:' | head -n1 || true)"
+    if [[ -n "$SRC_IMG" ]]; then
       echo "▶ Retagging ${SRC_IMG} → ${CEOS_TAG_LOCAL}"
-      docker tag "${SRC_IMG}" "${CEOS_TAG_LOCAL}"
-    else
-      echo "⚠️ Could not find a suitable source image to retag. Check 'docker images'."
+      docker tag "${SRC_IMG}" "${CEOS_TAG_LOCAL}" || true
     fi
   fi
 fi
 
-echo "✅ cEOS available as ${CEOS_TAG_LOCAL} (or will be once acquisition succeeds)"
-docker images | awk 'NR==1 || /ceos/ {print}'
-
+# Final status
+if docker image inspect "${CEOS_TAG_LOCAL}" >/dev/null 2>&1; then
+  echo "✅ cEOS available as ${CEOS_TAG_LOCAL}"
+else
+  echo "⚠️ cEOS not available yet. You can run '.devcontainer/basicLab/load-ceos.sh' after placing the tar."
+fi
 
 
 
