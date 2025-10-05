@@ -42,13 +42,12 @@ Before you begin, you’ll need:
 ---
 
 ## 📂 Repository Structure
-
+'''
 /images              → Where you’ll upload your cEOS .tar.xz file
 /topologies          → Containerlab topology files (Arista network setups)
 /configs             → Device configurations (optional)
 /scripts             → Helper scripts and tools
-
-
+'''
 ---
 
 ## 🚀 Getting Started
