@@ -67,7 +67,7 @@ That will render like this on GitHub 👇
 
 ```bash
 gh codespace cp -e images/cEOS64-lab-4.30.1F.tar.xz 'remote:/workspaces/clabDemos/basicLab/images' -c <codespace_name>
-
+```
 ---
 
 ## 💬 Community
