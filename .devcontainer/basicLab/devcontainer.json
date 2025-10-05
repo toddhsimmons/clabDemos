@@ -43,7 +43,8 @@
       },
       "extensions": [
         "redhat.ansible",
-        "ms-python.python"
+        "ms-python.python",
+        "srl-labs.vscode-containerlab"
       ]
     }
   }
