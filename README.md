@@ -59,6 +59,15 @@ Before you begin, you’ll need:
 
 > 🧩 Detailed steps are covered in each episode of the YouTube series!
 
+That will render like this on GitHub 👇  
+
+---
+
+**Command to get the cEOS image into `/basicLab/images`:**
+
+```bash
+gh codespace cp -e images/cEOS64-lab-4.30.1F.tar.xz 'remote:/workspaces/clabDemos/basicLab/images' -c <codespace_name>
+
 ---
 
 ## 💬 Community
