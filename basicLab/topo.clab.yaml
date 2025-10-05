@@ -5,8 +5,8 @@ mgmt:
 
 topology:
   kinds:
-    ceos:
-      image: ceos:4.30.1F
+    arista_arista_ceos:
+      image: arista_ceos:4.30.1F
       env:
         CLAB_MGMT_VRF: MGMT
 
@@ -15,7 +15,7 @@ topology:
     #   DC1    #
     ############
     DC1-Spine1:
-      kind: ceos
+      kind: arista_ceos
       group: spine
       mgmt-ipv4: 192.168.0.11
       startup-delay: 0
@@ -24,7 +24,7 @@ topology:
         - "2011:22"
         
     DC1-Spine2:
-      kind: ceos
+      kind: arista_ceos
       group: spine
       mgmt-ipv4: 192.168.0.12
       startup-delay: 10
@@ -33,7 +33,7 @@ topology:
         - "2012:22"
 
     DC1-Leaf1:
-      kind: ceos
+      kind: arista_ceos
       group: leaf
       mgmt-ipv4: 192.168.0.21
       startup-delay: 40
@@ -42,7 +42,7 @@ topology:
         - "2021:22"
 
     DC1-Leaf2:
-      kind: ceos
+      kind: arista_ceos
       group: leaf
       mgmt-ipv4: 192.168.0.22
       startup-delay: 55
@@ -51,7 +51,7 @@ topology:
         - "2022:22"
 
     DC1-Leaf3:
-      kind: ceos
+      kind: arista_ceos
       group: leaf
       mgmt-ipv4: 192.168.0.23
       startup-delay: 70
@@ -60,7 +60,7 @@ topology:
         - "2023:22"
 
     DC1-Leaf4:
-      kind: ceos
+      kind: arista_ceos
       group: leaf
       mgmt-ipv4: 192.168.0.24
       startup-delay: 85
