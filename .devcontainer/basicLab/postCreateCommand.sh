@@ -129,13 +129,17 @@ need docker
 wait_for_docker || true
 
 
-# --- Ensure Containerlab extension is installed early (non-fatal) ---
+# --- Install Containerlab VS Code extension locally (non-fatal) ---
 if command -v code >/dev/null 2>&1; then
-  echo "▶ Ensuring VS Code Containerlab extension (srl-labs.vscode-containerlab) is installed..."
-  # install via 'code' CLI if available; non-fatal
-  code --install-extension srl-labs.vscode-containerlab || true
+  VSIX_PATH="/workspaces/clabDemos/.devcontainer/vsix/vscode-containerlab.vsix"
+  if [ -f "$VSIX_PATH" ]; then
+    echo "▶ Installing Containerlab VSIX extension from repo..."
+    code --install-extension "$VSIX_PATH" --force || true
+  else
+    echo "⚠️ Containerlab VSIX not found at $VSIX_PATH"
+  fi
 else
-  echo "ℹ️ 'code' CLI not available in this session; extension may be installed by Codespaces UI."
+  echo "ℹ️ 'code' CLI not available in this session; skip VSIX install."
 fi
 
 

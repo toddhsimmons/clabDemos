@@ -42,7 +42,6 @@
         }
       },
       "extensions": [
-        "srl-labs.vscode-containerlab",
         "redhat.ansible",
         "ms-python.python"
       ]
