@@ -6,7 +6,7 @@ mgmt:
 topology:
   kinds:
     arista_arista_ceos:
-      image: arista_ceos:4.30.1F
+      image: ceos:4.30.1F
       env:
         CLAB_MGMT_VRF: MGMT
 
