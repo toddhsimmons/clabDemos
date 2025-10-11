@@ -79,14 +79,18 @@ topology:
     - endpoints: ["DC1-Leaf3:eth2","DC1-Leaf4:eth2"]
 
     # Leaf -> Spine (per mapping)
-    - endpoints: ["DC1-Leaf1:eth3","DC1-Spine1:eth2"]
-    - endpoints: ["DC1-Leaf1:eth4","DC1-Spine2:eth2"]
+    - endpoints: ["DC1-Leaf1:eth3","DC1-Spine1:eth3"]
+    - endpoints: ["DC1-Leaf1:eth4","DC1-Spine2:eth3"]
 
-    - endpoints: ["DC1-Leaf2:eth3","DC1-Spine1:eth3"]
-    - endpoints: ["DC1-Leaf2:eth4","DC1-Spine2:eth3"]
+    - endpoints: ["DC1-Leaf2:eth3","DC1-Spine1:eth4"]
+    - endpoints: ["DC1-Leaf2:eth4","DC1-Spine2:eth4"]
 
-    - endpoints: ["DC1-Leaf3:eth3","DC1-Spine1:eth4"]
-    - endpoints: ["DC1-Leaf3:eth4","DC1-Spine2:eth4"]
+    - endpoints: ["DC1-Leaf3:eth3","DC1-Spine1:eth5"]
+    - endpoints: ["DC1-Leaf3:eth4","DC1-Spine2:eth5"]
 
-    - endpoints: ["DC1-Leaf4:eth3","DC1-Spine1:eth5"]
-    - endpoints: ["DC1-Leaf4:eth4","DC1-Spine2:eth5"]
+    - endpoints: ["DC1-Leaf4:eth3","DC1-Spine1:eth6"]
+    - endpoints: ["DC1-Leaf4:eth4","DC1-Spine2:eth6"]
+  
+  # Spine1 <-> Spine2 peer links
+    - endpoints: ["DC1-Spine1:eth1","DC1-Spine2:eth1"]
+    - endpoints: ["DC1-Spine1:eth2","DC1-Spine2:eth2"]
