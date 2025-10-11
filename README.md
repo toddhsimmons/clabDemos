@@ -69,6 +69,22 @@ That will render like this on GitHub 👇
 gh codespace cp -e images/cEOS64-lab-4.30.1F.tar.xz 'remote:/workspaces/clabDemos/basicLab/images' -c <codespace_name>
 ```
 ---
+### ⚠️ Note: Containerlab VS Code Extension Setup
+
+When you first open this project in **GitHub Codespaces**, you may need to **manually install and trust the Containerlab VS Code extension**.
+
+This happens because the **Containerlab extension is not yet a trusted extension in Codespaces**, so it won’t be installed automatically during the environment setup.
+
+To fix this:
+
+1. In your Codespace, open the **Extensions** panel (⇧⌘X / Ctrl+Shift+X).
+2. Search for **Containerlab**.
+3. Click **Install**.
+4. When prompted, select **“Trust this extension”**.
+
+Once installed and trusted, the extension will integrate with your lab environment automatically on subsequent launches.
+
+---
 
 ## 💬 Community
 
