@@ -36,7 +36,7 @@ topology:
       kind: arista_ceos
       group: leaf
       mgmt-ipv4: 192.168.0.21
-      startup-delay: 40
+      startup-delay: 45
       startup-config: init-configs/DC1/Leaf1.cfg
       ports:
         - "2021:22"
@@ -70,27 +70,27 @@ topology:
 
     DC1-Host1:
       kind: arista_ceos
-      group: leaf
+      group: host
       mgmt-ipv4: 192.168.0.31
-      startup-delay: 40
+      startup-delay: 95
       startup-config: init-configs/DC1/Host1.cfg
       ports:
         - "2031:22"
 
     DC1-Host2:
       kind: arista_ceos
-      group: leaf
+      group: host
       mgmt-ipv4: 192.168.0.32
-      startup-delay: 55
+      startup-delay: 110
       startup-config: init-configs/DC1/Host2.cfg
       ports:
         - "2032:22"
 
     DC1-Host3:
       kind: arista_ceos
-      group: leaf
+      group: host
       mgmt-ipv4: 192.168.0.33
-      startup-delay: 70
+      startup-delay: 130
       startup-config: init-configs/DC1/Host3.cfg
       ports:
         - "2033:22"
