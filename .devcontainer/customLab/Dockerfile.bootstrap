@@ -1,0 +1,23 @@
+# Build on top of the exact image you’re using
+FROM ghcr.io/aristanetworks/aclabs/lab-base:python3.11-avd-v4.10.2-clab0.57.5-rev1.0
+
+ARG USER=avd
+ARG HOME_DIR=/home/${USER}
+
+USER root
+# 1) Install a small Node runtime so the status tool can run immediately
+RUN set -eux; \
+  apt-get update; \
+  DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends nodejs ca-certificates; \
+  rm -rf /var/lib/apt/lists/*
+
+# 2) Pre-seed a VS Code Server node path so the shell glob matches right away
+#    ~/.vscode-remote/bin/*/node  →  ~/.vscode-remote/bin/_bootstrap/node (symlink to installed node)
+RUN set -eux; \
+  mkdir -p "${HOME_DIR}/.vscode-remote/bin/_bootstrap"; \
+  NODE_BIN="$(command -v node || true)"; \
+  if [ -z "$NODE_BIN" ]; then echo "Node missing after install" >&2; exit 1; fi; \
+  ln -sf "$NODE_BIN" "${HOME_DIR}/.vscode-remote/bin/_bootstrap/node"; \
+  chown -R ${USER}:${USER} "${HOME_DIR}/.vscode-remote"
+
+USER ${USER}

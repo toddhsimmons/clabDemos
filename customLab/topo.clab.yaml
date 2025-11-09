@@ -1,0 +1,131 @@
+name: customLab
+mgmt:
+  network: clab-mgmt
+  ipv4-subnet: 192.168.0.0/24
+
+topology:
+  kinds:
+    arista_ceos:
+      image: ceos:4.30.1F
+      env:
+        CLAB_MGMT_VRF: MGMT
+
+  nodes:
+    ############
+    #   DC1    #
+    ############
+    DC1-Spine1:
+      kind: arista_ceos
+      group: spine
+      mgmt-ipv4: 192.168.0.11
+      startup-delay: 0
+      startup-config: init-configs/DC1/Spine1.cfg
+      ports:
+        - "2011:22"
+        
+    DC1-Spine2:
+      kind: arista_ceos
+      group: spine
+      mgmt-ipv4: 192.168.0.12
+      startup-delay: 10
+      startup-config: init-configs/DC1/Spine2.cfg
+      ports:
+        - "2012:22"
+
+    DC1-Leaf1:
+      kind: arista_ceos
+      group: leaf
+      mgmt-ipv4: 192.168.0.21
+      startup-delay: 40
+      startup-config: init-configs/DC1/Leaf1.cfg
+      ports:
+        - "2021:22"
+
+    DC1-Leaf2:
+      kind: arista_ceos
+      group: leaf
+      mgmt-ipv4: 192.168.0.22
+      startup-delay: 55
+      startup-config: init-configs/DC1/Leaf2.cfg
+      ports:
+        - "2022:22"
+
+    DC1-Leaf3:
+      kind: arista_ceos
+      group: leaf
+      mgmt-ipv4: 192.168.0.23
+      startup-delay: 70
+      startup-config: init-configs/DC1/Leaf3.cfg
+      ports:
+        - "2023:22"
+
+    DC1-Leaf4:
+      kind: arista_ceos
+      group: leaf
+      mgmt-ipv4: 192.168.0.24
+      startup-delay: 85
+      startup-config: init-configs/DC1/Leaf4.cfg
+      ports:
+        - "2024:22"
+
+    DC1-Host1:
+      kind: arista_ceos
+      group: leaf
+      mgmt-ipv4: 192.168.0.31
+      startup-delay: 40
+      startup-config: init-configs/DC1/Host1.cfg
+      ports:
+        - "2031:22"
+
+    DC1-Host2:
+      kind: arista_ceos
+      group: leaf
+      mgmt-ipv4: 192.168.0.32
+      startup-delay: 55
+      startup-config: init-configs/DC1/Host2.cfg
+      ports:
+        - "2032:22"
+
+    DC1-Host3:
+      kind: arista_ceos
+      group: leaf
+      mgmt-ipv4: 192.168.0.33
+      startup-delay: 70
+      startup-config: init-configs/DC1/Host3.cfg
+      ports:
+        - "2033:22"
+
+  links:
+    # ===== DC1 fabric  =====
+    # Leaf1 <-> Leaf2 peer links
+    - endpoints: ["DC1-Leaf1:eth1","DC1-Leaf2:eth1"]
+    - endpoints: ["DC1-Leaf1:eth2","DC1-Leaf2:eth2"]
+
+    # Leaf3 <-> Leaf4 peer links
+    # - endpoints: ["DC1-Leaf3:eth1","DC1-Leaf4:eth1"]
+    # - endpoints: ["DC1-Leaf3:eth2","DC1-Leaf4:eth2"]
+
+    # Leaf -> Spine (per mapping)
+    - endpoints: ["DC1-Leaf1:eth3","DC1-Spine1:eth3"]
+    - endpoints: ["DC1-Leaf1:eth4","DC1-Spine2:eth3"]
+
+    - endpoints: ["DC1-Leaf2:eth3","DC1-Spine1:eth4"]
+    - endpoints: ["DC1-Leaf2:eth4","DC1-Spine2:eth4"]
+
+    - endpoints: ["DC1-Leaf3:eth1","DC1-Spine1:eth5"]
+    - endpoints: ["DC1-Leaf3:eth2","DC1-Spine2:eth5"]
+
+    - endpoints: ["DC1-Leaf4:eth1","DC1-Spine1:eth6"]
+    - endpoints: ["DC1-Leaf4:eth2","DC1-Spine2:eth6"]
+  
+  # Spine1 <-> Spine2 peer links
+    # - endpoints: ["DC1-Spine1:eth1","DC1-Spine2:eth1"]
+    # - endpoints: ["DC1-Spine1:eth2","DC1-Spine2:eth2"]
+
+  # Leaf -> Host (per mapping)
+    - endpoints: ["DC1-Leaf1:eth5","DC1-Host1:eth1"]
+    - endpoints: ["DC1-Leaf2:eth5","DC1-Host1:eth2"]
+
+    - endpoints: ["DC1-Leaf3:eth3","DC1-Host3:eth1"]
+
+    - endpoints: ["DC1-Leaf4:eth3","DC1-Host3:eth1"]

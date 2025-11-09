@@ -1,0 +1,154 @@
+---
+# Enjoy this Toddomation
+
+fabric_ip_addressing:
+  mlag:
+    # This changes the default subnet from a /31
+    ipv4_prefix_length: 30 
+  p2p_uplinks:           
+    # This changes the default subnet from a /31    
+    ipv4_prefix_length: 30 
+
+# Define underlay and overlay routing protocol to be used
+underlay_routing_protocol: ospf
+overlay_routing_protocol: ebgp
+# underlay_ospf_bfd_enable: false
+# custom_structured_configuration_router_bfd: null
+
+# Enable eAPI
+management_api_http:
+  enable_http: true
+  enable_https: false
+  enable_unix: false
+  enable_vrfs:
+    - name: MGMT
+
+# Set default uplink, downlink, and MLAG interfaces based on node type
+default_interfaces:
+  - types: [spine]
+    platforms: [default]
+    uplink_interfaces: [Ethernet1-8]
+    downlink_interfaces: [Ethernet1-8]
+  - types: [l3leaf]
+    platforms: [default]
+    uplink_interfaces: [Ethernet1-8]
+    mlag_interfaces: [Ethernet1-2]
+    downlink_interfaces: [Ethernet1-8]
+  - types: [l2leaf]
+    platforms: [default]
+    uplink_interfaces: [Ethernet1-4]
+
+spine:
+  defaults:
+    platform: cEOS-lab
+    loopback_ipv4_pool: 192.168.255.0/24
+    loopback_ipv4_offset: 10
+    bgp_as: 65110
+    # All BGP knobs belong under structured_config.router_bgp
+    structured_config:
+      router_bgp:
+        neighbor_default:
+          send_community: all
+        redistribute:
+          connected:
+            enabled: true 
+        distance:
+          external_routes: 20
+          internal_routes: 200
+          local_routes: 200
+        maximum_paths:
+          paths: 4
+
+  nodes:
+    - name: DC1-Spine1
+      id: 1
+      mgmt_ip: 192.168.0.11/24
+
+    - name: DC1-Spine2
+      id: 2
+      mgmt_ip: 192.168.0.12/24
+
+l3leaf:
+  defaults:
+    platform: cEOS-lab
+    mlag_interfaces: []
+    loopback_ipv4_pool: 192.168.255.0/24
+    loopback_ipv4_offset: 20
+    vtep_loopback_ipv4_pool: 192.168.255.0/24
+    uplink_switches: [DC1-Spine1, DC1-Spine2]
+    uplink_interfaces: [Ethernet3, Ethernet4]
+    uplink_ipv4_pool: 10.10.0.0/26
+    mlag_peer_ipv4_pool: 10.255.1.64/27
+    mlag_peer_l3_ipv4_pool: 10.255.1.96/27
+    virtual_router_mac_address: 00:1c:73:00:00:99
+    spanning_tree_priority: 4096
+    spanning_tree_mode: mstp
+
+  node_groups:
+    - group: DC1_L3_LEAF
+      bgp_as: 65012
+      vtep_loopback_ipv4_address: 192.168.255.112
+      nodes:
+        - name: DC1-Leaf1
+          id: 1
+          mgmt_ip: 192.168.0.21/24
+          uplink_switch_interfaces: [Ethernet2, Ethernet2]
+          
+        - name: DC1-Leaf2
+          id: 2
+          mgmt_ip: 192.168.0.22/24
+          uplink_switch_interfaces: [Ethernet3, Ethernet3]
+
+    - group: DC1_L3_LEAF2
+      bgp_as: 65034
+      vtep_loopback_ipv4_address: 192.168.255.134
+      nodes:
+        - name: DC1-Leaf3
+          id: 3
+          mgmt_ip: 192.168.0.23/24
+          uplink_switch_interfaces: [Ethernet4, Ethernet4]
+        - name: DC1-Leaf4
+          id: 4
+          mgmt_ip: 192.168.0.24/24
+          uplink_switch_interfaces: [Ethernet5, Ethernet5]
+
+l2leaf:
+  defaults:
+    platform: cEOS-lab
+    spanning_tree_mode: mstp
+
+  node_groups:
+    - group: DC1_L2_LEAF1
+      uplink_switches: [DC1-Leaf1a, DC1-Leaf1a, DC1-Leaf1b, DC1-Leaf1b]
+      uplink_switch_interfaces: [Ethernet6, Ethernet7, Ethernet6, Ethernet7]
+      nodes:
+        - name: DC1-Leaf1c
+          id: 101
+          mgmt_ip: 192.168.0.51/24
+          uplink_interfaces: [Ethernet1, Ethernet2, Ethernet3, Ethernet4]
+          structured_config:
+            vlan_interfaces:
+              - name: Vlan15
+                ip_address: 172.16.15.51/24
+              - name: Vlan16
+                ip_address: 172.16.16.51/24
+              - name: Vlan17
+                ip_address: 172.16.17.51/24
+
+    - group: DC1_L2_LEAF2
+      uplink_switches: [DC1-Leaf2a, DC1-Leaf2a, DC1-Leaf2b, DC1-Leaf2b]
+      uplink_switch_interfaces: [Ethernet6, Ethernet7, Ethernet6, Ethernet7]
+      nodes:
+        - name: DC1-Leaf2c
+          id: 102
+          mgmt_ip: 192.168.0.52/24
+          uplink_interfaces: [Ethernet1, Ethernet2, Ethernet3, Ethernet4]
+          structured_config:
+            vlan_interfaces:
+              - name: Vlan15
+                ip_address: 172.16.15.52/24
+              - name: Vlan16
+                ip_address: 172.16.16.52/24
+              - name: Vlan17
+                ip_address: 172.16.17.52/24
+
