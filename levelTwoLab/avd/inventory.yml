@@ -1,0 +1,39 @@
+---
+all:
+  children:
+    FABRIC:
+      vars:
+        ansible_user: ansible
+        ansible_ssh_pass: ansible
+        ansible_connection: network_cli
+        ansible_network_os: eos
+      children:
+        DC1:
+          children:
+            DC1_SPINES:
+              hosts:
+                DC1-Spine1:
+                  ansible_host: 192.168.0.11
+                DC1-Spine2:
+                  ansible_host: 192.168.0.12
+            DC1_LEAVES:
+              children:
+                DC1_LEAF1:
+                  hosts:
+                    DC1-Leaf1:
+                      ansible_host: 192.168.0.21
+                    DC1-Leaf2:
+                      ansible_host: 192.168.0.22
+                DC1_LEAF2:
+                  hosts:
+                    DC1-Leaf3:
+                      ansible_host: 192.168.0.23
+                    DC1-Leaf4:
+                      ansible_host: 192.168.0.24
+                       
+    NETWORK_SERVICES:
+      children:
+        DC1_LEAVES:
+    CONNECTED_ENDPOINTS:
+      children:
+        DC1_LEAVES:

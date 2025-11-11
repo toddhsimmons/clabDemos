@@ -1,0 +1,31 @@
+---
+# Enjoy this Toddomation
+
+tenants:
+  # This is for the tenant-a Customer VRF
+  - name: TENANTA
+    mac_vrf_vni_base: 10000
+    vrfs:
+      - name: tenant-a
+        vrf_vni: 1000
+        # enable_mlag_ibgp_peering_vrfs: true
+        # mlag_ibgp_peering_vlan: 3002 #Overrides the basic use to use the vrf_vni number
+        # mlag_ibgp_peering_ipv4_pool: 192.2.2.32/27
+        svis:
+          - id: 160
+            name: VRF_VLAN160
+            enabled: true
+            ip_address_virtual: 172.16.160.254/24
+          - id: 170
+            name: VRF1_VLAN170
+            enabled: true
+            ip_address_virtual: 172.16.170.254/24
+
+l2vlans:
+  # These are pure L2 vlans. They do not have a SVI defined in the l3leafs
+  # and they will be bridged inside the VXLAN fabric
+  - id: 3401
+    name: L2_VLAN3401
+    vxlan: true
+  # - id: 3402
+  #   name: L2_VLAN3402
