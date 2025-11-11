@@ -23,15 +23,6 @@ topology:
       ports:
         - "2051:22"
 
-    DC1-Borderleaf2:
-      kind: arista_ceos
-      group: leaf
-      mgmt-ipv4: 192.168.0.52
-      startup-delay: 30
-      startup-config: init-configs/DC1/Borderleaf2.cfg
-      ports:
-        - "2052:22"
-
     DC1-Spine1:
       kind: arista_ceos
       group: spine
@@ -135,8 +126,8 @@ topology:
     # ===== DC1 fabric  =====
     # Borderleafs peer links
 
-    - endpoints: ["DC1-Borderleaf1:eth1","DC1-Borderleaf2:eth1"]
-    - endpoints: ["DC1-Borderleaf1:eth2","DC1-Borderleaf2:eth2"]
+    # - endpoints: ["DC1-Borderleaf1:eth1","DC1-Borderleaf2:eth1"]
+    # - endpoints: ["DC1-Borderleaf1:eth2","DC1-Borderleaf2:eth2"]
 
     # Leaf1 <-> Leaf2 peer links
     - endpoints: ["DC1-Leaf1:eth1","DC1-Leaf2:eth1"]
@@ -169,10 +160,10 @@ topology:
     - endpoints: ["DC1-Borderleaf1:eth5","DC1-Spine3:eth5"]
     - endpoints: ["DC1-Borderleaf1:eth6","DC1-Spine4:eth5"]
 
-    - endpoints: ["DC1-Borderleaf2:eth3","DC1-Spine1:eth6"]
-    - endpoints: ["DC1-Borderleaf2:eth4","DC1-Spine2:eth6"]
-    - endpoints: ["DC1-Borderleaf2:eth5","DC1-Spine3:eth6"]
-    - endpoints: ["DC1-Borderleaf2:eth6","DC1-Spine4:eth6"]
+    # - endpoints: ["DC1-Borderleaf2:eth3","DC1-Spine1:eth6"]
+    # - endpoints: ["DC1-Borderleaf2:eth4","DC1-Spine2:eth6"]
+    # - endpoints: ["DC1-Borderleaf2:eth5","DC1-Spine3:eth6"]
+    # - endpoints: ["DC1-Borderleaf2:eth6","DC1-Spine4:eth6"]
 
   # Leaf -> Host (per mapping)
     - endpoints: ["DC1-Leaf1:eth7","DC1-Host1:eth1"]
