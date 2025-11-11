@@ -18,7 +18,7 @@ topology:
       kind: arista_ceos
       group: leaf
       mgmt-ipv4: 192.168.0.51
-      startup-delay: 145
+      startup-delay: 10
       startup-config: init-configs/DC1/Borderleaf1.cfg
       ports:
         - "2051:22"
@@ -27,7 +27,7 @@ topology:
       kind: arista_ceos
       group: leaf
       mgmt-ipv4: 192.168.0.52
-      startup-delay: 155
+      startup-delay: 30
       startup-config: init-configs/DC1/Borderleaf2.cfg
       ports:
         - "2052:22"
@@ -36,7 +36,7 @@ topology:
       kind: arista_ceos
       group: spine
       mgmt-ipv4: 192.168.0.11
-      startup-delay: 0
+      startup-delay: 50
       startup-config: init-configs/DC1/Spine1.cfg
       ports:
         - "2011:22"
@@ -45,7 +45,7 @@ topology:
       kind: arista_ceos
       group: spine
       mgmt-ipv4: 192.168.0.12
-      startup-delay: 10
+      startup-delay: 70
       startup-config: init-configs/DC1/Spine2.cfg
       ports:
         - "2012:22"
@@ -54,7 +54,7 @@ topology:
       kind: arista_ceos
       group: spine
       mgmt-ipv4: 192.168.0.13
-      startup-delay: 20
+      startup-delay: 90
       startup-config: init-configs/DC1/Spine3.cfg
       ports:
         - "2013:22"
@@ -63,7 +63,7 @@ topology:
       kind: arista_ceos
       group: spine
       mgmt-ipv4: 192.168.0.14
-      startup-delay: 30
+      startup-delay: 110
       startup-config: init-configs/DC1/Spine4.cfg
       ports:
         - "2014:22"
@@ -72,7 +72,7 @@ topology:
       kind: arista_ceos
       group: leaf
       mgmt-ipv4: 192.168.0.21
-      startup-delay: 45
+      startup-delay: 130
       startup-config: init-configs/DC1/Leaf1.cfg
       ports:
         - "2021:22"
@@ -81,7 +81,7 @@ topology:
       kind: arista_ceos
       group: leaf
       mgmt-ipv4: 192.168.0.22
-      startup-delay: 55
+      startup-delay: 150
       startup-config: init-configs/DC1/Leaf2.cfg
       ports:
         - "2022:22"
@@ -90,7 +90,7 @@ topology:
       kind: arista_ceos
       group: leaf
       mgmt-ipv4: 192.168.0.23
-      startup-delay: 70
+      startup-delay: 170
       startup-config: init-configs/DC1/Leaf3.cfg
       ports:
         - "2023:22"
@@ -99,7 +99,7 @@ topology:
       kind: arista_ceos
       group: leaf
       mgmt-ipv4: 192.168.0.24
-      startup-delay: 85
+      startup-delay: 190
       startup-config: init-configs/DC1/Leaf4.cfg
       ports:
         - "2024:22"
@@ -108,7 +108,7 @@ topology:
       kind: arista_ceos
       group: host
       mgmt-ipv4: 192.168.0.31
-      startup-delay: 95
+      startup-delay: 210
       startup-config: init-configs/DC1/Host1.cfg
       ports:
         - "2031:22"
@@ -117,7 +117,7 @@ topology:
       kind: arista_ceos
       group: host
       mgmt-ipv4: 192.168.0.32
-      startup-delay: 110
+      startup-delay: 230
       startup-config: init-configs/DC1/Host2.cfg
       ports:
         - "2032:22"
@@ -126,7 +126,7 @@ topology:
       kind: arista_ceos
       group: host
       mgmt-ipv4: 192.168.0.33
-      startup-delay: 130
+      startup-delay: 250
       startup-config: init-configs/DC1/Host3.cfg
       ports:
         - "2033:22"
