@@ -65,9 +65,9 @@ done
 cat <<'MAP'
 Device → Port (default mapping)
 --------------------------------
-DC1
-  Spine1-DC1  2011   Spine2-DC1  2012   
-  Leaf1-DC1   2021   Leaf2-DC1   2022   Leaf3-DC1   2023   Leaf4-DC1 2024
+DC1 - Device:Port
+  Spine1:2011   Spine2:2012   
+  Leaf1:2021    Leaf2:2022   Leaf3:2023   Leaf4:2024
 
 Connect from your Mac/SecureCRT as:  Hostname=127.0.0.1, Port=<above>, Username=admin, Password=admin
 MAP
