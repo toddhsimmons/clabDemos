@@ -41,7 +41,7 @@ if [[ -n "${PORTS:-}" ]]; then
 else
 
  # Default port list based on Loopback0 mapping:
-  PORT_LIST=(2011 2012 2013 2014 2021 2022 2023 2024 2031 2032 2033 2051 2052)
+  PORT_LIST=(2011 2012 2021 2022 2023 2024 2031 2032 2033 2051)
 
   # DC1: 2001–2010, DC2: 2101–2110, DC3: 2201–2207, MPLS: 2301–2305
   # PORT_LIST=(
@@ -64,8 +64,10 @@ cat <<'MAP'
 Device → Port (default mapping)
 --------------------------------
 DC1
+  Bordereaf1-DC1    2051
   Spine1-DC1  2011   Spine2-DC1  2012   
   Leaf1-DC1   2021   Leaf2-DC1   2022   Leaf3-DC1   2023   Leaf4-DC1 2024
+  Host1-DC1   2031  Host1-DC1   2032    Host1-DC1   2033
 
 Connect from your Mac/SecureCRT as:  Hostname=127.0.0.1, Port=<above>, Username=admin, Password=admin
 MAP
